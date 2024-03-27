@@ -5,7 +5,7 @@ LLVM_STRIP ?= llvm-strip
 BPFTOOL ?= $(abspath ../tools/bpftool)
 LIBBPF_SRC := $(abspath ../libbpf/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
-INCLUDES := -I$(OUTPUT)
+INCLUDES := -I$(OUTPUT) -I/usr/include/x86_64-linux-gnu/
 CFLAGS := -g -Wall
 ARCH := $(shell uname -m | sed 's/x86_64/x86/')
 
@@ -72,4 +72,3 @@ $(LIBBPF_OBJ): $(wildcard $(LIBBPF_SRC)/*.[ch] $(LIBBPF_SRC)/Makefile) | $(OUTPU
 
 # keep intermediate (.skel.h, .bpf.o, etc) targets
 .SECONDARY:
-
