@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 // Copyright (c) 2020 Andrii Nakryiko
 #include "common.h"
-#include "ringbuf-output.skel.h"
+#include "trace_uring.skel.h"
 #include <bpf/libbpf.h>
 #include <errno.h>
 #include <signal.h>
@@ -43,14 +43,14 @@ int handle_event(void *ctx, void *data, size_t data_sz) {
   tm = localtime(&t);
   strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
-  printf("%-8s %-5s %-7d %-16s %s\n", ts, "EXEC", e->pid, e->comm, e->filename);
+  printf("%-8s %-5s %-7d %-16s\n", ts, "EXEC", e->pid, e->comm);
 
   return 0;
 }
 
 int main(int argc, char **argv) {
   struct ring_buffer *rb = NULL;
-  struct ringbuf_output_bpf *skel;
+  struct trace_uring_bpf *skel;
   int err;
 
   /* Set up libbpf logging callback */
@@ -64,14 +64,14 @@ int main(int argc, char **argv) {
   signal(SIGTERM, sig_handler);
 
   /* Load and verify BPF application */
-  skel = ringbuf_output_bpf__open_and_load();
+  skel = trace_uring_bpf__open_and_load();
   if (!skel) {
     fprintf(stderr, "Failed to open and load BPF skeleton\n");
     return 1;
   }
 
   /* Attach tracepoint */
-  err = ringbuf_output_bpf__attach(skel);
+  err = trace_uring_bpf__attach(skel);
   if (err) {
     fprintf(stderr, "Failed to attach BPF skeleton\n");
     goto cleanup;
@@ -86,8 +86,7 @@ int main(int argc, char **argv) {
   }
 
   /* Process events */
-  printf("%-8s %-5s %-7s %-16s %s\n", "TIME", "EVENT", "PID", "COMM",
-         "FILENAME");
+  printf("%-8s %-5s %-7s %-16s\n", "TIME", "EVENT", "PID", "COMM");
   while (!exiting) {
     err = ring_buffer__poll(rb, 100 /* timeout, ms */);
     /* Ctrl-C will cause -EINTR */
@@ -103,7 +102,7 @@ int main(int argc, char **argv) {
 
 cleanup:
   ring_buffer__free(rb);
-  ringbuf_output_bpf__destroy(skel);
+  trace_uring_bpf__destroy(skel);
 
   return err < 0 ? -err : 0;
 }

@@ -6,10 +6,10 @@ BPFTOOL ?= $(abspath ../tools/bpftool)
 LIBBPF_SRC := $(abspath ../libbpf/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
 INCLUDES := -I$(OUTPUT) -I/usr/include/x86_64-linux-gnu/
-CFLAGS := -g -Wall
+CFLAGS := -g -Wall -fPIC
 ARCH := $(shell uname -m | sed 's/x86_64/x86/')
 
-APPS = perfbuf-output ringbuf-output ringbuf-reserve-submit
+APPS = trace_uring
 
 ifeq ($(V),1)
 	Q =
