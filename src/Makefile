@@ -38,6 +38,7 @@ $(OUTPUT) $(OUTPUT)/libbpf:
 # Build final application
 $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,COMPLETE,$@)
+	$(Q)ar rcs $(OUTPUT)/libbpfbundle.a $(OUTPUT)/libbpf/staticobjs/* $(OUTPUT)/trace_uring.o
 
 $(patsubst %,$(OUTPUT)/%.o,$(APPS)): %.o: %.skel.h
 

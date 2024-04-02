@@ -108,6 +108,6 @@ cleanup:
 }
 
 int hello2(void){
-    printf("Hello from trace_uring.c");
+    printf("Hello from trace_uring.c\n");
     return 0;
 }
