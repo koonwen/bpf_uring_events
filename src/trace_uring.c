@@ -44,7 +44,7 @@ int handle_event(void *ctx, void *data, size_t data_sz) {
   tm = localtime(&t);
   strftime(ts, sizeof(ts), "%H:%M:%S", tm);
 
-  printf("%-8s %-5s %-7d %-16s\n", ts, "EXEC", e->pid, e->comm);
+  printf("%-8s %-5d %-7d %-16s\n", ts, e->probe, e->pid, e->comm);
 
   return 0;
 }
