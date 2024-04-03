@@ -48,7 +48,7 @@ int handle_event(void *ctx, void *data, size_t data_sz) {
   return 0;
 }
 
-int run(int argc, char **argv) {
+int run(int (*handle_event)(void*, void*, size_t)) {
   struct ring_buffer *rb = NULL;
   struct trace_uring_bpf *skel;
   int err;
@@ -105,9 +105,4 @@ cleanup:
   trace_uring_bpf__destroy(skel);
 
   return err < 0 ? -err : 0;
-}
-
-int hello2(void){
-    printf("Hello from trace_uring.c\n");
-    return 0;
 }

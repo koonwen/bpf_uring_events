@@ -10,15 +10,6 @@ struct trace_entry {
   int pid;
 };
 
-/* sched_process_exec tracepoint context */
-struct trace_event_raw_sched_process_exec {
-  struct trace_entry ent;
-  unsigned int __data_loc_filename;
-  int pid;
-  int old_pid;
-  char __data[0];
-};
-
 /* io_uring_create tracepoint context */
 struct trace_event_io_uring_create {
   struct trace_entry ent;
