@@ -17,6 +17,7 @@ int libbpf_print_fn(enum libbpf_print_level level, const char *format,
   return vfprintf(stderr, format, args);
 }
 
+/* Check if this is still necessary */
 void bump_memlock_rlimit(void) {
   struct rlimit rlim_new = {
       .rlim_cur = RLIM_INFINITY,
