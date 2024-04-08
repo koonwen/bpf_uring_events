@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 // Copyright (c) 2020 Andrii Nakryiko
-#include "common.h"
+#include "trace_uring.h"
 #include "trace_uring.skel.h"
 #include <bpf/libbpf.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <sys/resource.h>
-#include <time.h>
 
 int libbpf_print_fn(enum libbpf_print_level level, const char *format,
                     va_list args) {
@@ -33,21 +32,6 @@ void bump_memlock_rlimit(void) {
 static volatile bool exiting = false;
 
 static void sig_handler(int sig) { exiting = true; }
-
-int handle_event(void *ctx, void *data, size_t data_sz) {
-  const struct event *e = data;
-  struct tm *tm;
-  char ts[32];
-  time_t t;
-
-  time(&t);
-  tm = localtime(&t);
-  strftime(ts, sizeof(ts), "%H:%M:%S", tm);
-
-  printf("%-8s %-5d %-7d %-16s\n", ts, e->probe, e->pid, e->comm);
-
-  return 0;
-}
 
 int run(int (*handle_event)(void*, void*, size_t)) {
   struct ring_buffer *rb = NULL;
@@ -87,7 +71,7 @@ int run(int (*handle_event)(void*, void*, size_t)) {
   }
 
   /* Process events */
-  printf("%-8s %-5s %-7s %-16s\n", "TIME", "EVENT", "PID", "COMM");
+  /* printf("%-8s %-5s %-7s %-16s\n", "TIME", "EVENT", "PID", "COMM"); */
   while (!exiting) {
     err = ring_buffer__poll(rb, 100 /* timeout, ms */);
     /* Ctrl-C will cause -EINTR */

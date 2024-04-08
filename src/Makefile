@@ -53,7 +53,7 @@ $(OUTPUT)/%.skel.h: $(OUTPUT)/%.bpf.o | $(OUTPUT)
 	$(Q)$(BPFTOOL) gen skeleton $< > $@
 
 # Build BPF code
-$(OUTPUT)/%.bpf.o: %.bpf.c $(LIBBPF_OBJ) common.h | $(OUTPUT)
+$(OUTPUT)/%.bpf.o: %.bpf.c $(LIBBPF_OBJ) trace_uring.h | $(OUTPUT)
 	$(call msg,BPF,$@)
 	$(Q)$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH)		      \
 		     $(INCLUDES) -c $(filter %.c,$^) -o $@
