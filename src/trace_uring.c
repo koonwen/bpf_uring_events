@@ -16,19 +16,6 @@ int libbpf_print_fn(enum libbpf_print_level level, const char *format,
   return vfprintf(stderr, format, args);
 }
 
-/* Check if this is still necessary */
-void bump_memlock_rlimit(void) {
-  struct rlimit rlim_new = {
-      .rlim_cur = RLIM_INFINITY,
-      .rlim_max = RLIM_INFINITY,
-  };
-
-  if (setrlimit(RLIMIT_MEMLOCK, &rlim_new)) {
-    fprintf(stderr, "Failed to increase RLIMIT_MEMLOCK limit!\n");
-    exit(1);
-  }
-}
-
 static volatile bool exiting = false;
 
 static void sig_handler(int sig) { exiting = true; }
@@ -41,8 +28,8 @@ int run(int (*handle_event)(void*, void*, size_t)) {
   /* Set up libbpf logging callback */
   libbpf_set_print(libbpf_print_fn);
 
-  /* Bump RLIMIT_MEMLOCK to create BPF maps */
-  bump_memlock_rlimit();
+  /* Implicitly bump RLIMIT_MEMLOCK to create BPF maps */
+  libbpf_set_strict_mode(LIBBPF_STRICT_DIRECT_ERRS | LIBBPF_STRICT_CLEAN_PTRS);
 
   /* Clean handling of Ctrl-C */
   signal(SIGINT, sig_handler);
