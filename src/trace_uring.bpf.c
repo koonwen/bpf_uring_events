@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
 /* Copyright (c) 2020 Andrii Nakryiko */
+/* #include "vmlinux.h" */
 #include "trace_uring.h"
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
@@ -25,6 +26,16 @@ static inline int __ker_ev_handler(probe_t probe, int probe_id, span_t span) {
   e->span = span;
   e->ktime_ns = bpf_ktime_get_tai_ns();
   bpf_get_current_comm(&e->comm, sizeof(e->comm));
+
+  /* Debug */
+  if (probe == SYSCALLS) {
+    if (span == BEGIN)
+      bpf_printk("BPF syscalls id %d OPEN triggered from PID %d.\n", probe_id,
+                 e->pid);
+    else
+      bpf_printk("BPF syscalls id %d CLOSE triggered from PID %d.\n", probe_id,
+                 e->pid);
+  };
 
   bpf_ringbuf_submit(e, 0);
   return 0;
@@ -115,35 +126,35 @@ int handle_task_work_run(struct trace_event_io_uring_task_work_run *ctx) {
 SEC("tp/syscalls/sys_exit_io_uring_register")
 int handle_sys_exit_io_uring_register(void *ctx) {
   bpf_printk("sys_exit_io_uring_register");
-  return __ker_ev_handler(SYSCALLS, SYS_EXIT_IO_URING_REGISTER, END);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_REGISTER, END);
 }
 
 SEC("tp/syscalls/sys_enter_io_uring_register")
 int handle_sys_enter_io_uring_register(void *ctx) {
   bpf_printk("sys_enter_io_uring_register");
-  return __ker_ev_handler(SYSCALLS, SYS_ENTER_IO_URING_REGISTER, BEGIN);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_REGISTER, BEGIN);
 }
 
 SEC("tp/syscalls/sys_exit_io_uring_setup")
 int handle_sys_exit_io_uring_setup(void *ctx) {
   bpf_printk("sys_exit_io_uring_setup");
-  return __ker_ev_handler(SYSCALLS, SYS_EXIT_IO_URING_SETUP, END);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_SETUP, END);
 }
 
 SEC("tp/syscalls/sys_enter_io_uring_setup")
 int handle_sys_enter_io_uring_setup(void *ctx) {
   bpf_printk("sys_enter_io_uring_setup");
-  return __ker_ev_handler(SYSCALLS, SYS_ENTER_IO_URING_SETUP, BEGIN);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_SETUP, BEGIN);
 }
 
 SEC("tp/syscalls/sys_exit_io_uring_enter")
 int handle_sys_exit_io_uring_enter(void *ctx) {
   bpf_printk("sys_exit_io_uring_enter");
-  return __ker_ev_handler(SYSCALLS, SYS_EXIT_IO_URING_ENTER, END);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_ENTER, END);
 }
 
 SEC("tp/syscalls/sys_enter_io_uring_enter")
 int handle_sys_enter_io_uring_enter(void *ctx) {
   bpf_printk("sys_enter_io_uring_enter");
-  return __ker_ev_handler(SYSCALLS, SYS_ENTER_IO_URING_ENTER, BEGIN);
+  return __ker_ev_handler(SYSCALLS, SYS_IO_URING_ENTER, BEGIN);
 }
